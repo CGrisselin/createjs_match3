@@ -6,7 +6,7 @@ body {
   background-color: #05093f;
 }
 
-a {
+a:link {
   color: #a585d0;
 }
 
@@ -14,7 +14,6 @@ h1, h2 {
   margin: 10px 0;
   font-family: inherit;
   color: inherit;
-  text-rendering: optimizelegibility;
   text-align: center;
   font-size: 30px;
   font-weight: 200;
