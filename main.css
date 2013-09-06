@@ -1,13 +1,13 @@
 
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 20px;
-  color: #333333;
-  background-color: #cecece;
+  color: #a585d0;
+  background-color: #05093f;
 }
 
-h1, h2, #score {
+h1, h2 {
   margin: 10px 0;
   font-family: inherit;
   color: inherit;
@@ -18,15 +18,79 @@ h1, h2, #score {
   letter-spacing: -1px;
 }
 
-h2, #score {
+h2 {
   font-size: 15px;
   letter-spacing: 0;
 }
 
-#match_3 {
+#sidebar{
+    display: inline-block;
+    vertical-align: top;  
+}
+
+.gem{
+    display: inline-block;
+    width:48px;
+    height:48px;
+    margin:0;
+    padding:0;
+    font-family: inherit;    
+}
+
+#gem1{
+    background-image:url("assets/niv1.png");
+    background-repeat:no-repeat;
+}
+#gem2{
+    background-image:url("assets/niv2.png");    
+    background-repeat:no-repeat;
+}
+
+#scorezone{
   display: block;
+  border: 1px solid rgba(0, 0, 0, 0.3);;
+  border-radius: 5px;
+  font-family: inherit;
+  color: #311069;
+  background: #a58cd0;
+  width: 200px;
+  padding: 5px;
+  margin: 0 auto;  
+}
+
+#score {
+  font-family: inherit;
+  font-size: 30px;
+  letter-spacing: 0;  
+  text-align: center; 
+}
+
+#main {
+  margin: 0 auto;  
+  width: 600px;
+}
+
+#game {
+  display: inline-block;
+  margin: 0 auto;  
+  width: 350px;
+}
+
+#legend {
+    display: inline-block;
+    width: 33px;
+    height: 387px;
+    margin: 0;
+    padding:0;
+  background: url(assets/legend.png);
+}
+
+#divcanvas {
+  display: inline-block;
+  width:288px;
+  height:432px;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  margin: 0 auto;
   background: rgba(255,255,255,0.9) url(assets/background.png);
   border-radius: 5px;
+  margin: 0 auto;
 }

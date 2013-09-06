@@ -9,18 +9,27 @@
     <link href="main.css" media="all" rel="stylesheet" type="text/css" />
   </head>
   <body onload="initialize()">
-    
-    <h1>CreateJS Match-3</h1>
-    
-    <div id="score"></div>
-    <canvas id="match_3" width="288" height="432"></canvas>
-    
-    <h2>Instructions:
-      <strong>Left</strong>, <strong>Right</strong> to Move -
-      <strong>Up</strong> to Rotate -
-      <strong>Down</strong> to Drop.
-    </h2>
-    
+    <div id="main">
+        <h1>CreateJS Match-3</h1>        
+        <div id="game">
+            <div id="legend"></div>
+            <div id="divcanvas"><canvas id="match_3" width="288" height="432"></canvas></div>
+        </div>
+        <div id="sidebar">
+            <div id="nextgemgroup">
+                <div id="gem1" class="gem"></div>
+                <div id="gem2" class="gem"></div>
+            </div>
+            <div id="scorezone">Score: 
+                <div id="score"></div>
+            </div>      
+        </div>
+        <h2>Instructions:
+          <strong>Left</strong>, <strong>Right</strong> to Move -
+          <strong>Up</strong> to Rotate -
+          <strong>Down</strong> to Drop.
+        </h2>
+    </div>
     <script type="text/javascript" src="easeljs-0.6.0.min.js"></script>
     <script type="text/javascript" src="tweenjs-0.4.0.min.js"></script>
     <script type="text/javascript" src="preloadjs-0.3.0.min.js"></script>

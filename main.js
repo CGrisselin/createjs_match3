@@ -1,13 +1,13 @@
-(function() {
-
+(function () {
+    "use strict";
     // Gem size constant in pixels
     var GEMSIZE = 48;
 
-    // Margin top equal to 2 gems height
-    var MARGINTOP = 2;
+    // Margin top equal to 1 gems height
+    var MARGINTOP = 0;
     
     // All gem types
-    var GEMTYPES = ["blueDude", "cyanDude", "greenDude", "magentaDude", "orangeDude", "pinkDude", "redDude", "yellowDude"];
+    var GEMTYPES = ["niv1", "niv2", "niv3", "niv4", "niv5", "niv6", "niv7", "niv8", "niv9", "niv10", "niv11", "niv12"];
     
     // Game class
     function Game(stage) {
@@ -20,7 +20,7 @@
         // Create a new jMatch3 Grid
         this.grid = new jMatch3.Grid({
             width: 6,
-            height: 7,
+            height: 9,
             gravity: "down"
         });
         
@@ -28,11 +28,24 @@
         
         // Create new Gem
         var currentGemGroup;
+        var nextGemGroup;
 
-        this.newGemGroup = function() {
-            currentGemGroup = new GemGroup(this);
+        this.showNextGroup = function() {
+            document.getElementById("gem1").style.backgroundImage = 'url("assets/'+nextGemGroup.getGemType(0)+'.png")';
+            document.getElementById("gem2").style.backgroundImage = 'url("assets/'+nextGemGroup.getGemType(1)+'.png")';
+        }
+        
+        this.newGemGroup = function () {
+            currentGemGroup = nextGemGroup;
+            nextGemGroup = new GemGroup(this);  
+            this.showNextGroup();
+            if (currentGemGroup && currentGemGroup.addToStage){
+                currentGemGroup.addToStage();
+            }
+            this.updateScore();
         };
 
+        this.newGemGroup();
         this.newGemGroup();
 
         // Bind a function to each keys
@@ -59,23 +72,22 @@
                 }
             }
         };
-
+        
         // Handle keys
         this.handleKeyPressed = function(key) {
             keys[key]();
         };
-
-
     }
     
-    Game.prototype.handleMatches = function() {
+    Game.prototype.handleMatches = function () {
         
         // Get all matches
         var matches = this.grid.getMatches();
-        
+        var b_matches=false;
+
         // If matches have been found
         if (matches) {
-            
+                
             // Initialize the array of pieces to upgrade
             var piecesToUpgrade = [];
             
@@ -84,38 +96,38 @@
             
             // For each match found
             this.grid.forEachMatch(function(matchingPieces, type) {
-                
-                // Add to score
-                game.addToScore((GEMTYPES.indexOf(type) + 1) * matchingPieces.length);
-                
-                // For each match take the first piece to upgrade it
-                piecesToUpgrade.push({
-                    piece: matchingPieces[0],
-                    type: type
-                });
-                
-                for (var i in matchingPieces) {
-                    var gem = matchingPieces[i].object;
-                    
-                    // Remove gem bitmap from stage
-                    gem.game.stage.removeChild(gem.bitmap);
-                }
-                
+                if (GEMTYPES.indexOf(type)<(GEMTYPES.length-2)){                  
+                  // For each match take the first piece to upgrade it
+                  piecesToUpgrade.push({
+                      piece: matchingPieces[0],
+                      type: type
+                  });
+                  
+                  for (var i in matchingPieces) {
+                      var gem = matchingPieces[i].object;
+                      
+                      // Remove gem bitmap from stage
+                      gem.game.stage.removeChild(gem.bitmap);
+                  }
+                }                
             });
             
-            // Remove matches and apply Gravity
-            this.grid.clearMatches();
-            
-            // Upgrade pieces
-            this.handleUpgrade(piecesToUpgrade);
-
+            if (piecesToUpgrade.length>0){
+                // des pièces ont été modifiées
+                b_matches=true;
+                
+                // Remove matches and apply Gravity
+                this.grid.clearMatches(function(piece){ return piece.object.type!==GEMTYPES[GEMTYPES.length-1];});
+                
+                // Upgrade pieces
+                this.handleUpgrade(piecesToUpgrade);
+            }
         }
         
-        this.handleFalling();
-
+        this.handleFalling(b_matches);
     };
     
-    Game.prototype.handleFalling = function() {
+    Game.prototype.handleFalling = function(lastmatches) {
         
         // Apply gravity and get falling Pieces
         var fallingPieces = this.grid.applyGravity();
@@ -142,14 +154,35 @@
 
             }
         } else {
-            
-            // Create a new gem if no falling pieces
-            this.newGemGroup();
-            
+            if (lastmatches){
+              // Reference to current game
+              var game = this;
+              game.handleMatches();
+            }else{                            
+                if (this.existGemInRow(0) || this.existGemInRow(1)) {
+                  this.stage.removeAllChildren();                  
+                  gameOver();
+                }else{              
+                    this.newGemGroup();                       
+                }
+            }
         }
 
     };
     
+    Game.prototype.existGemInRow = function(numRow){
+        var voidObject = {
+                  type: "empty"
+              };
+        var exist = false;
+        var row = this.grid.getRow(numRow,false);
+          for (var j in row) {
+            if (row[j].object.type !== voidObject.type) {
+              exist = true;
+            }
+          }
+        return exist;        
+    }
     
     Game.prototype.handleUpgrade = function(piecesToUpgrade) {
         
@@ -174,20 +207,37 @@
                 
                 // And create a new piece
                 pieceToUpgrade.piece.object = new Gem(this, upgradedType, pieceToUpgrade.piece.x, pieceToUpgrade.piece.y + MARGINTOP);
-                
+                pieceToUpgrade.piece.object.addToStage();
             }
 
         }
     };
     
     Game.prototype.randomGemType = function() {
-        return this.discoveredGems[Math.floor(Math.random() * this.discoveredGems.length)];
+        return this.discoveredGems[Math.floor(Math.random() * (this.discoveredGems.length-1))];
     };
     
     Game.prototype.addToScore = function(amount) {
         this.score += amount;
         document.getElementById("score").innerHTML = this.score;
     };
+    
+    Game.prototype.updateScore = function(){
+        var voidObject = {
+            type: "empty"
+        };
+        this.score=0;
+        for (var y = 0; y < this.grid.height; y++) {
+            for (var x = 0; x < this.grid.width; x++) {
+                if (this.grid.pieces[x][y].object.type!==voidObject.type){
+                    this.addToScore(
+                        Math.pow(3,GEMTYPES.indexOf(
+                            this.grid.pieces[x][y].object.type))
+                        );
+                }
+            };
+        };
+    }
     
     // GemGroup class
     function GemGroup(game) {
@@ -251,6 +301,19 @@
             }
         };
         
+        this.addToStage = function(){
+            gems.first.addToStage();   
+            gems.second.addToStage();   
+        }
+        
+        this.getGemType = function(numGem){
+            if (numGem===0){
+                return gems.first.type;
+            }else{
+                return gems.second.type;
+            }
+        }
+        
         this.move = function(amount) {
             
             // new x position
@@ -295,11 +358,13 @@
         this.bitmap = new createjs.Bitmap("assets/" + type + ".png");
 
         this.move(x, y);
-
-        // Add it to game stage
-        this.game.stage.addChild(this.bitmap);
     }
-
+    
+    Gem.prototype.addToStage = function(){
+        // Add it to game stage
+        this.game.stage.addChild(this.bitmap);        
+    }
+    
     // Move method
     Gem.prototype.move = function(x, y) {
         this.x = x;
@@ -325,8 +390,9 @@
 
             // And make it fall
             this.fall(lastEmpty.x, lastEmpty.y, callback);
+
+            lastEmpty = jMatch3.Grid.getLastEmptyPiece(column);
         } else {
-            
             // Remove all bitmap
             this.game.stage.removeAllChildren();
             
@@ -368,14 +434,14 @@
         });
         
         preload.loadManifest([
-            "assets/blueDude.png",
-            "assets/cyanDude.png",
-            "assets/greenDude.png",
-            "assets/magentaDude.png",
-            "assets/orangeDude.png",
-            "assets/pinkDude.png",
-            "assets/redDude.png",
-            "assets/yellowDude.png"
+            "assets/niv1.png",
+            "assets/niv2.png",
+            "assets/niv3.png",
+            "assets/niv4.png",
+            "assets/niv5.png",
+            "assets/niv6.png",
+            "assets/niv7.png",
+            "assets/niv8.png"
         ]);
         
         // Global game over function

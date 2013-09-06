@@ -71,11 +71,9 @@
         var checked = [];
         var matches = [];
 
-        for (var l in this.pieces) {
-            var pieces = this.pieces[l];
-
-            for (var i in pieces) {
-                var piece = pieces[i];
+        for (var i = this.height-1;i>=0;i--) { //lines
+            for (var l = 0; l<this.width;l++) { //columns
+                var piece = this.pieces[l][i];
 
                 if (checked.indexOf(piece) === -1) {
                     var match = piece.deepMatchingNeighbours();
@@ -123,7 +121,7 @@
     };
 
     // Destroy all matches and update the grid
-    Grid.prototype.clearMatches = function() {
+    Grid.prototype.clearMatches = function(condition) {
         var matches = this.getMatches();
 
         if (matches.length === 0) {
@@ -133,7 +131,9 @@
         for (var i in matches) {
             var pieces = matches[i];
             for (var p in pieces) {
-                pieces[p].clear();
+                if (condition(pieces[p])){
+                    pieces[p].clear();
+                }
             }
         }
 
@@ -294,6 +294,7 @@
         var deepMatches = [];
 
         function deepMatchingNeighbours(piece) {
+            if (deepMatches.length===0) deepMatches.push(piece);
 
             var matchingNeighbours = piece.matchingNeighbours();
 
